@@ -54,7 +54,6 @@ class ArchivesSpaceClient
   end
 
   def search_repository( query, repo_id, page = 1, search_opts = {})
-    query = "#{query}#{process_filters(search_opts)}"
     search_opts = DEFAULT_SEARCH_OPTS.merge(search_opts)
     url = build_url("/repositories/#{repo_id}/search",search_opts.merge(:q => query, :page => page))
     results = do_search(url)

@@ -10,7 +10,7 @@ class RepositoriesController < ApplicationController
     'facet[]' => ['primary_type', 'subjects', 'agents'],
     'facet.mincount' => 1
   }
-  DEFAULT_TYPES =  %w{archival_object digital_object agent resource accession}.map {|t| "types:#{t}"}.join(" OR ")
+  DEFAULT_TYPES =  %w{archival_object digital_object agent resource accession}
 
   def index
     @criteria = {}
@@ -54,10 +54,16 @@ class RepositoriesController < ApplicationController
 #    Rails.logger.debug("JSONIZED FILTER TERM:*#{str.to_json}*")
 #    @criteria['filter_term[]'] = "{ #{str.to_json}}"
     page = Integer(params.fetch(:page, "1"))
-    facet = params.fetch(:facet, [])
-    @criteria['filter'] = facet
-    q = params.require(:q)
-    @query = "#{q} AND (#{DEFAULT_TYPES})"
+    @query = params.require(:q)
+    builder = AdvancedQueryBuilder.new
+    params.fetch(:filter_fields, []).zip(params.fetch(:filter_values, [])) {|field, value|
+      builder.and(field, value)
+    }
+    type_query_builder = AdvancedQueryBuilder.new
+    DEFAULT_TYPES.reduce(type_query_builder) {|b, type|
+      b.or('types', type)
+    }
+    @criteria['filter'] = builder.and(type_query_builder).build.to_json
 #    Rails.logger.debug("input facets? #{facet}")
     @results = archivesspace.search_repository(@query,repo_id, page, @criteria)
     @facets = {}
@@ -74,12 +80,10 @@ class RepositoriesController < ApplicationController
     if @results['results'].length > 0 && @results['results'][0]['_resolved_repository'].present?
       @repo = @results['results'][0]['_resolved_repository']['json'] || {}
     end
-    @page_search = "/repositories/#{repo_id}/search?q=#{q}"
-    if facet.length > 0
-      facet.each do |f|
-        @page_search = "#{@page_search}&facet[]=#{f}"
-      end
-    end
+    @page_search = "/repositories/#{repo_id}/search?q=#{@query}"
+    params.fetch(:filter_fields, []).zip(params.fetch(:filter_values, [])) {|field, value|
+      @page_search += "&filter_fields[]=#{field}&filter_values[]=#{CGI.escape(value)}"
+    }
     @pager = Pager.new(@page_search,@results['this_page'],@results['last_page'])
     @page_title = "#{I18n.t('search_results.head_prefix')} #{@results['total_hits']} #{I18n.t('search_results.head_suffix')}"
     render 
