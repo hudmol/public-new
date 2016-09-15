@@ -1,5 +1,5 @@
 # TODO Please be aware there is also an AdvancedQueryBuilder in the
-# ArchivesSpace distribution.  If the new public application is error merged
+# ArchivesSpace distribution.  If the new public application is ever merged
 # with the ArchivesSpace core, then this file can be removed in favour of the
 # ArchivesSpace version.
 class AdvancedQueryBuilder
