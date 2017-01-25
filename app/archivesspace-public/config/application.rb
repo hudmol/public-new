@@ -5,6 +5,8 @@ require 'action_controller/railtie'
 require 'action_view/railtie'
 require 'sprockets/railtie'
 
+require_relative 'initializers/plugins'
+
 # Maybe we won't need these?
 
 # DISABLED BY MST # require 'active_record/railtie'
@@ -28,3 +30,5 @@ module ArchivesspacePublic
     config.i18n.load_path += Dir[File.join(Rails.root, AppConfig[:custom], 'locales', '**' , '*.{rb,yml}')]
   end
 end
+
+Plugins::init

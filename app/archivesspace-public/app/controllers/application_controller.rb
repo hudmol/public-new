@@ -20,6 +20,8 @@ class ApplicationController < ActionController::Base
   helper_method :get_note
 
 
+  Plugins::init_template_overrides(self)
+
 
   protect_from_forgery with: :exception
 
