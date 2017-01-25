@@ -27,6 +27,13 @@ module PublicNewDefaults
     end
   end
 
+  def self.add_menu_item(path, label, position = nil)
+    if position.nil?
+      $MAIN_MENU.push([path, label])
+    else
+      $MAIN_MENU.insert(position, [path, label])
+    end
+  end
 #  Pry::ColorPrinter.pp $MAIN_MENU
 #  MemoryLeak::Resources.define(:repository, proc { ArchivesSpaceClient.new.list_repositories }, 60)
 #pp MemoryLeak::Resources.get(:repository)
