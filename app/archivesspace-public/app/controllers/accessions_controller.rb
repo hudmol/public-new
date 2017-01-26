@@ -76,14 +76,14 @@ class AccessionsController <  ApplicationController
     @results =  handle_results(@results)
     if !@results['results'].blank? && @results['results'].length > 0
       @result = @results['results'][0]
+
+      @accession = Accession.new(@result)
+
 #      Pry::ColorPrinter.pp(@result)
       @page_title = strip_mixed_content(@result['json']['title'])
       @context = []
       @context.unshift({:uri => @result['_resolved_repository']['json']['uri'], :crumb =>  @result['_resolved_repository']['json']['name']})
       @context.push({:uri => '', :crumb => @result['json']['title'] })
-      @subjects = process_subjects(@result['json']['subjects'])
-      @agents = process_agents(@result['json']['linked_agents'], @subjects)
-      process_extents(@result['json'])
     else
       @type = I18n.t('accession._singular')
       @page_title = I18n.t('errors.error_404', :type => @type)
